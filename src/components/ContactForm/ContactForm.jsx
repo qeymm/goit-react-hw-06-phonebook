@@ -1,48 +1,45 @@
-import { useState, useCallback } from 'react';
-import PropTypes from 'prop-types';
-import { nanoid } from 'nanoid';
-import style from './ContactFormStyle.module.css';
+import { useState } from 'react';
+import style from './ContactForm.module.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { addContact } from '../../redux/contactsSlice';
+import { getContacts } from '../../redux/selectors';
 
-export const ContactForm = ({ addContact, contacts }) => {
+export const ContactForm = () => {
+  const dispatch = useDispatch();
+  const contacts = useSelector(getContacts);
+
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
 
-  const handleNameChange = useCallback(e => {
+  const handleNameChange = e => {
     setName(e.target.value);
-  }, []);
+  };
 
-  const handleNumberChange = useCallback(e => {
+  const handleNumberChange = e => {
     setNumber(e.target.value);
-  }, []);
+  };
 
-  const handleSubmit = useCallback(
-    e => {
-      e.preventDefault();
+  const handleSubmit = e => {
+    e.preventDefault();
 
-      if (name.trim() === '' || number.trim() === '') {
-        return;
-      }
+    if (name.trim() === '' || number.trim() === '') {
+      return;
+    }
 
-      const existingContact = contacts.find(
-        contact => contact.name.toLowerCase() === name.toLowerCase()
-      );
+    const existingContact = contacts.find(
+      contact => contact.name.toLowerCase() === name.toLowerCase()
+    );
 
-      if (existingContact) {
-        alert(`${name} is already in contacts.`);
-        return;
-      }
+    if (existingContact) {
+      alert(`${name} is already in contacts.`);
+      return;
+    }
 
-      addContact({
-        id: nanoid(),
-        name: name.trim(),
-        number: number.trim(),
-      });
+    dispatch(addContact(name, number));
 
-      setName('');
-      setNumber('');
-    },
-    [addContact, contacts, name, number]
-  );
+    setName('');
+    setNumber('');
+  };
 
   return (
     <>
@@ -76,20 +73,9 @@ export const ContactForm = ({ addContact, contacts }) => {
         </label>
 
         <button className={style.submitBtn} type="submit">
-          Add Contact
+          ADD CONTACT
         </button>
       </form>
     </>
   );
-};
-
-ContactForm.propTypes = {
-  addContact: PropTypes.func.isRequired,
-  contacts: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      number: PropTypes.string.isRequired,
-    })
-  ),
 };
